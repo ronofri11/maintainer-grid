@@ -1,0 +1,9 @@
+{
+    "1": {"index": 1, "caption": "Lunes"},
+    "2": {"index": 2, "caption": "Martes"},
+    "3": {"index": 3, "caption": "Miércoles"},
+    "4": {"index": 4, "caption": "Jueves"},
+    "5": {"index": 5, "caption": "Viernes"},
+    "6": {"index": 6, "caption": "Sábado"},
+    "7": {"index": 7, "caption": "Domingo"}
+}

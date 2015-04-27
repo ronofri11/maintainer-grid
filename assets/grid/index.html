@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <link rel="stylesheet" type="text/css" href="css/maintainer.css">
+        <link rel="stylesheet" type="text/css" href="css/vignette.css">
+        <link rel="stylesheet" type="text/css" href="css/plug.css">
+        <link rel="stylesheet" type="text/css" href="css/darwintable.css">
+        <link rel="stylesheet" type="text/css" href="css/schedule.css">
+        <link rel="stylesheet" type="text/css" href="css/pantone.css">
+
+        <link rel="stylesheet" type="text/css" href="css/maintainer-responsive.css">
+        <link rel="stylesheet" type="text/css" href="css/vignette-responsive.css">
+        <link rel="stylesheet" type="text/css" href="css/plug-responsive.css">
+        <link rel="stylesheet" type="text/css" href="css/darwintable-responsive.css">
+        <link rel="stylesheet" type="text/css" href="css/schedule-responsive.css">
+        <link rel="stylesheet" type="text/css" href="css/grid-responsive.css">
+
+        <link rel="stylesheet" type="text/css" href="css/notificaciones.css">
+        <script src="js/assets/notificaciones.js"></script>
+
+        <script src="js/ie/modernizr.js"></script> <!-- CSS3 old browser support -->
+        <!--[if lt IE 9]>
+        <script src="js/ie/selectivizr.js"></script>
+        <script src="js/ie/html5.js"></script>
+        <script src="js/ie/ie9.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="maintainer">
+            <div class="header">
+                <div class="left">
+                    <h1>MANTENEDOR DE FRANJAS</h1>
+                </div>
+                <div class="right"></div>
+            </div>
+            <div class="content">
+                <div class="vignette fourth">
+                    <div class="slot">
+                        <div class="plug">
+                            <div class="header">
+                                <h1>ATRIBUTO</h1>
+                                <div class="buttons"></div>
+                            </div>
+                            <div class="content">
+                                <!-- DARWINTABLE -->
+                                <div class="dwt"></div>
+                            </div>
+                            <div class="footer"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="vignette third-fourth">
+                    <div class="slot">
+                        <div class="plug" id="appControler">
+                            <div class="header" id="professor">
+                                <h1></h1>
+                                <div class="buttons">
+                                    <ul class="left">
+                                        <li id="edit">
+                                            <object type="image/svg+xml;base64" data="img/svg/edit.svg"></object>
+                                        </li>
+                                        <li id="erase">
+                                            <object type="image/svg+xml" data="img/svg/erase.svg"></object>
+                                        </li>
+                                        <!--<li id="move">
+                                            <object type="image/svg+xml" data="img/svg/move.svg"></object>
+                                        </li>-->
+                                    </ul>
+                                    <ul class="right">
+                                        <li id="save">
+                                            <object type="image/svg+xml" data="img/svg/save.svg"></object>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <!-- SCHEDULER -->
+                                <div class="sch">
+                                    <div class="col-left">
+                                        <div class="title" id="title-legends"></div>
+                                    </div>
+                                    <div class="col-right">
+                                        <div class="title" id="title-days"></div>
+                                        <div class="container">
+                                            <div class="group-pieces">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="footer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- maintainer -->
+
+        <script data-main="js/main" src="bower_components/requirejs/require.js"></script>
+
+        <div class="panel_notificacion"></div> <!-- nueva -->
+
+    </body>
+</html>

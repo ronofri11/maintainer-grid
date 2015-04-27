@@ -1,0 +1,74 @@
+// redondeado
+.redondo (@radius: 5px) {
+  -webkit-border-radius: @radius;
+     -moz-border-radius: @radius;
+      -ms-border-radius: @radius;
+       -o-border-radius: @radius;
+          border-radius: @radius;
+}
+
+/*
+ * INICIO CSS
+ */
+
+.panel_notificacion
+{
+	position: fixed;
+	width: 50%;
+	bottom: 34px;
+	right: 35px;
+	z-index: 999999;
+}
+
+.notificacion
+{
+	position: relative;
+	width: 100%;
+	padding: 10px;
+	background: #000;
+	color: #fff;
+	font-size: 12px;
+	margin-bottom: 4px;
+
+	.redondo(8px);
+
+	> .close
+	{
+		color: #fff;
+		opacity: 1;
+		position: absolute;
+		right: 20px;
+		top: 6px;
+		font-weight: 300 !important;
+		font-size: 16px;
+		border: none;
+		background: none;
+		cursor: pointer;
+	}
+}
+
+.notificacion.exito
+{
+	background: #00a232 !important;
+}
+
+.notificacion.error
+{
+	background: #fe0000 !important;
+}
+
+.notificacion.info
+{
+	background: #000000 !important;
+}
+
+.notificacion.warning
+{
+	background: #ffff01 !important;
+	color: #000 !important;
+
+	> button
+	{
+		color: #000 !important;
+	}
+}
