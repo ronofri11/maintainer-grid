@@ -11,7 +11,7 @@ define([
             url: url,
             async: false,
             success: function(result){
-                blocks = result;
+                blocks = result[0];
             }
         });
         return blocks;

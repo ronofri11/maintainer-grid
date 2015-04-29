@@ -10,7 +10,7 @@ define([
     Grid.Channel = Radio.channel("grid");
 
     var Parser = new GridParser();
-    var gridData = Parser.parse("/maintainer-grid/assets/grid/js/json/servicio_jony.json");
+    var gridData = Parser.parse("/clients/darwined/api_schedules");
     console.log("gridData:", gridData);
 
     //set of models and collections needed
@@ -31,6 +31,15 @@ define([
     var CellView = Marionette.ItemView.extend({
         tagName: "li",
         template: _.template('<span><%-code%></span>'),
+        triggers: {
+            "click": "cell:click",
+            "mouseover": "cell:mouseover",
+            "mouseenter": "cell:mouseenter",
+            "mousedown": "cell:mousedown",
+            "mousemove": "cell:mousemove",
+            "mouseup": "cell:mouseup"
+        },
+
         onRender: function(){
             var height = this.options.renderParams.height;
             var start = parseFloat(this.model.get("start"));
@@ -42,11 +51,18 @@ define([
         }
     });
 
-    var ColumnView = Marionette.CompositeView.extend({
+    //replace with a CompositeView in case of a more complex scenario
+    var ColumnView = Marionette.CollectionView.extend({
         tagName: "ul",
         className: "col",
-        template: _.template('<h3>column:<%-index%>   </h3>'),
         childView: CellView,
+
+        childEvents: {
+            "cell:click": function(args){
+                console.log("en el column", args);
+                            this.triggerMethod("column:click", args);
+                        }
+        },
 
         initialize: function(options){
             this.collection = this.model.get("cells");
@@ -57,6 +73,7 @@ define([
 
         onRender: function(){
             this.$el.css("width", this.options.renderParams.width + "%");
+            this.$el.css("height", this.options.renderParams.height + "px");
         }
     });
 
@@ -65,10 +82,27 @@ define([
         className: "grid",
         childView: ColumnView,
 
+        childEvents:{
+            "column:click": function(args){
+                console.log(args.model);
+            }
+        },
+
         initialize: function(options){
             this.childViewOptions = {
                 renderParams: options.renderParams
             };
+
+            this.on("grid:click", this.gridClick);
+        },
+
+        onRender: function(){
+            this.$el.css("height", this.options.renderParams.height + "px");
+        },
+
+        gridClick: function(args){
+            console.log(args);
+            alert("grid clicked");
         }
     });
 
