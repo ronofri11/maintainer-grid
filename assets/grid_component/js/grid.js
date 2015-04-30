@@ -10,7 +10,7 @@ define([
     Grid.Channel = Radio.channel("grid");
 
     var Parser = new GridParser();
-    var gridData = Parser.parse("/clients/darwined/api_schedules");
+    var gridData = Parser.parse("/clients/testing/api_schedules");
     console.log("gridData:", gridData);
 
     //set of models and collections needed
@@ -31,13 +31,13 @@ define([
     var CellView = Marionette.ItemView.extend({
         tagName: "li",
         template: _.template('<span><%-code%></span>'),
-        triggers: {
-            "click": "cell:click",
-            "mouseover": "cell:mouseover",
-            "mouseenter": "cell:mouseenter",
-            "mousedown": "cell:mousedown",
-            "mousemove": "cell:mousemove",
-            "mouseup": "cell:mouseup"
+        events: {
+            "click": "broadcastEvent",
+            "mouseover": "broadcastEvent",
+            "mouseenter": "broadcastEvent",
+            "mousedown": "broadcastEvent",
+            "mousemove": "broadcastEvent",
+            "mouseup": "broadcastEvent"
         },
 
         onRender: function(){
@@ -48,6 +48,16 @@ define([
             this.$el.css("height", (height * (end - start)) + "px");
             this.$el.css("top", (height * (start)) + "px");
             this.$el.css("position", "absolute");
+        },
+
+        bubbleEvent: function(event){
+            var eventName = "cell:" + event.type;
+            this.triggerMethod(eventName, {eventName: eventName, model: this.model});
+        },
+
+        broadcastEvent: function(event){
+            var eventName = "cell:" + event.type;
+            Grid.Channel.trigger(eventName, {eventName: eventName, model: this.model});
         }
     });
 
@@ -58,10 +68,12 @@ define([
         childView: CellView,
 
         childEvents: {
-            "cell:click": function(args){
-                console.log("en el column", args);
-                            this.triggerMethod("column:click", args);
-                        }
+            "cell:click": "bubbleEvent",
+            "cell:mouseover": "bubbleEvent",
+            "cell:mouseenter": "bubbleEvent",
+            "cell:mousedown": "bubbleEvent",
+            "cell:mousemove": "bubbleEvent",
+            "cell:mouseup": "bubbleEvent"
         },
 
         initialize: function(options){
@@ -74,6 +86,10 @@ define([
         onRender: function(){
             this.$el.css("width", this.options.renderParams.width + "%");
             this.$el.css("height", this.options.renderParams.height + "px");
+        },
+
+        bubbleEvent: function(emitter, args){
+            this.triggerMethod(args.eventName, args);
         }
     });
 
@@ -83,9 +99,12 @@ define([
         childView: ColumnView,
 
         childEvents:{
-            "column:click": function(args){
-                console.log(args.model);
-            }
+            "cell:click": "logChildEvent",
+            "cell:mouseover": "logChildEvent",
+            "cell:mouseenter": "logChildEvent",
+            "cell:mousedown": "logChildEvent",
+            "cell:mousemove": "logChildEvent",
+            "cell:mouseup": "logChildEvent"
         },
 
         initialize: function(options){
@@ -100,9 +119,8 @@ define([
             this.$el.css("height", this.options.renderParams.height + "px");
         },
 
-        gridClick: function(args){
-            console.log(args);
-            alert("grid clicked");
+        logChildEvent: function(emitter, args){
+            console.log("gridview:", args);
         }
     });
 
@@ -140,6 +158,10 @@ define([
                 }
             }));
         });
+    });
+
+    Grid.Channel.on("cell:click", function(args){
+        console.log("channel:", Grid.Channel.channelName, args);
     });
 
     return Grid;
