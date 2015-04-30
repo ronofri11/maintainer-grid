@@ -2,10 +2,11 @@ define([
 	"backbone.marionette",
 	"backbone.radio",
 	"radio.shim",
-    "../assets/grid_component/js/grid"
-    // "../assets/grid/js/views/gridview",
-    // "../assets/grid/js/blockparser"
-], function (Marionette, Radio, Shim, Grid) {
+    "../assets/grid_component/js/grid",
+    "../assets/grid_component/js/piecedrawer"
+  // "../assets/grid/js/views/gridview",
+  // "../assets/grid/js/blockparser"
+], function (Marionette, Radio, Shim, Grid, PieceDrawer) {
 
 	var App = new Marionette.Application();
 
@@ -38,57 +39,25 @@ define([
     //     Grid.View.render();
     // });
 
-    console.log(App.Grid);
-
-    console.log("APP GRID IS ABOUT TO START");
-
-    App.Grid.start({columns: 
-        [{
-            index:1,
-            cells:[
-                {
-                  "start": "08:30:00", 
-                  "code": "1.1", 
-                  "end": "09:10:00"
-                }, 
-                {
-                  "start": "09:10:00", 
-                  "code": "1.2", 
-                  "end": "09:50:00"
-                }, 
-                {
-                  "start": "10:00:00", 
-                  "code": "1.3", 
-                  "end": "10:40:00"
-                }
-            ]
-        }, 
-        {
-            index:2,
-            cells:[
-                {
-                  "start": "08:30:00", 
-                  "code": "2.1", 
-                  "end": "09:10:00"
-                }, 
-                {
-                  "start": "09:10:00", 
-                  "code": "2.2", 
-                  "end": "09:50:00"
-                }, 
-                {
-                  "start": "10:00:00", 
-                  "code": "2.3", 
-                  "end": "10:40:00"
-                }
-            ]
-        }
-        ]
+    App.Grid.start({
+      renderParams:{height: 350}
     });
 
-    console.log("APP GRID WAS STARTED");
-
     App.Layout.getRegion("main").show(App.Grid.Layout);
+
+    Radio.channel("grid").request("get:cell", {code: "1.1"});
+    var renderParams = Radio.channel("grid").request("get:grid:params");
+
+    renderParams["z"] = 2;
+
+    console.log("renderParams", renderParams);
+
+    var gridRegion = Radio.channel("grid").request("get:grid:region");
+
+    App.PieceDrawer = PieceDrawer;
+    App.PieceDrawer.start(renderParams);
+
+    gridRegion.show(App.PieceDrawer.Layout);
 
     return App;
 });

@@ -2,7 +2,7 @@ define([
     "backbone.marionette",
     "backbone.radio",
     "radio.shim",
-    "../js/gridparser"
+    "../js/gridparser",
     // "text!../templates/grid.html"
 ], function(Marionette, Radio, Shim, GridParser){
     var Grid = new Marionette.Application();
@@ -10,7 +10,8 @@ define([
     Grid.Channel = Radio.channel("grid");
 
     var Parser = new GridParser();
-    var gridData = Parser.parse("/clients/testing/api_schedules");
+    var gridData = Parser.parse("/clients/darwined/api_schedules");
+
     console.log("gridData:", gridData);
 
     //set of models and collections needed
@@ -20,11 +21,20 @@ define([
         model: Cell
     });
 
-    var Column = Backbone.Model.extend({
-    });
+    var Column = Backbone.Model.extend({});
 
     var Columns = Backbone.Collection.extend({
-        model: Column
+        model: Column,
+
+        getCell: function(code){
+            var splitCode = code.split(".");
+            var col = this.findWhere({"index":splitCode[0]});
+            var cell;
+            if(col !== undefined){
+                var cell = col.get("cells").findWhere({"code": code});
+            }
+            return cell;
+        }
     });
 
     //Views for the Grid App
@@ -89,6 +99,7 @@ define([
         },
 
         bubbleEvent: function(emitter, args){
+            console.log("in column bubbling cell:", args);
             this.triggerMethod(args.eventName, args);
         }
     });
@@ -145,23 +156,44 @@ define([
         Grid.Layout = new GridLayout();
     });
 
-    Grid.on("start", function(){
+    Grid.on("start", function(options){
         console.log("start");
         //first render is different from the ones to follow
         Grid.Layout.render();
+        console.log(options.renderParams.height);
         Grid.Layout.on("show", function(){
-            Grid.Layout.getRegion("grid").show(new GridView({
+            Grid.GridView = new GridView({
                 collection: Grid.Columns,
                 renderParams: {
-                    height: 410,
+                    height: options.renderParams.height,
                     width: parseFloat(100.0/Grid.Columns.length)
                 }
-            }));
+            });
+            var region = Grid.Layout.getRegion("grid");
+            region.show(Grid.GridView);
+            region.$el.css("height", options.renderParams.height + "px");
         });
     });
 
+    //Grid publishes it's DOM events into the "grid" channel
     Grid.Channel.on("cell:click", function(args){
-        console.log("channel:", Grid.Channel.channelName, args);
+        console.log("channel:", Grid.Channel.channelName, args.model.toJSON());
+    });
+
+    //Grid exposes an API through it's channel
+    Grid.Channel.reply("get:cell", function(args){
+        var code = args.code;
+        var cell = Grid.Columns.getCell(code);
+        // console.log("cell is:", cell.toJSON());
+        return cell;
+    });
+
+    Grid.Channel.reply("get:grid:params", function(){
+        return Grid.GridView.getOption("renderParams");
+    });
+
+    Grid.Channel.reply("get:grid:region", function(){
+        return Grid.Layout.getRegion("grid");
     });
 
     return Grid;
