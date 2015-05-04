@@ -10,9 +10,9 @@ define([
     Grid.Channel = Radio.channel("grid");
 
     var Parser = new GridParser();
-    var gridData = Parser.parse("/clients/darwined/api_schedules");
+    var gridData = Parser.parse("/clients/testing/api_schedules");
 
-    console.log("gridData:", gridData);
+    // console.log("gridData:", gridData);
 
     //set of models and collections needed
     var Cell = Backbone.Model.extend({});
@@ -135,13 +135,6 @@ define([
         }
     });
 
-    var GridLayout = Marionette.LayoutView.extend({
-        template: "#grid-layout-template",
-        regions: {
-            grid: ".container"
-        }
-    });
-
     Grid.on("before:start", function(options){
         console.log("before:start");
         //options.columns should contain an array of objects
@@ -152,30 +145,22 @@ define([
             var cellCollection = new Cells(cells);
             col.set("cells", cellCollection);
         });
-
-        Grid.Layout = new GridLayout();
     });
 
     Grid.on("start", function(options){
         console.log("start");
-        //first render is different from the ones to follow
-        Grid.Layout.render();
         console.log(options.renderParams.height);
-        Grid.Layout.on("show", function(){
-            Grid.GridView = new GridView({
-                collection: Grid.Columns,
-                renderParams: {
-                    height: options.renderParams.height,
-                    width: parseFloat(100.0/Grid.Columns.length)
-                }
-            });
-            var region = Grid.Layout.getRegion("grid");
-            region.show(Grid.GridView);
-            region.$el.css("height", options.renderParams.height + "px");
+
+        Grid.View = new GridView({
+            collection: Grid.Columns,
+            renderParams: {
+                height: options.renderParams.height,
+                width: parseFloat(100.0/Grid.Columns.length)
+            }
         });
     });
 
-    //Grid publishes it's DOM events into the "grid" channel
+    //Grid publishes it's DOM events on the "grid" channel
     Grid.Channel.on("cell:click", function(args){
         console.log("channel:", Grid.Channel.channelName, args.model.toJSON());
     });
@@ -189,11 +174,11 @@ define([
     });
 
     Grid.Channel.reply("get:grid:params", function(){
-        return Grid.GridView.getOption("renderParams");
+        return Grid.View.getOption("renderParams");
     });
 
-    Grid.Channel.reply("get:grid:region", function(){
-        return Grid.Layout.getRegion("grid");
+    Grid.Channel.reply("get:grid:root", function(){
+        return Grid.View;
     });
 
     return Grid;

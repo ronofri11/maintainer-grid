@@ -33,6 +33,7 @@ define([
     //should have a Piece as model
     var PieceView = Marionette.ItemView.extend({
         tagName: "div",
+        className: "piece",
         template: _.template('<span></span>'),
         events: {
             "click": "broadcastEvent",
@@ -58,7 +59,7 @@ define([
             this.$el.css("height", (height * (end - start)) + "px");
             this.$el.css("top", (height * (start)) + "px");
             this.$el.css("position", "absolute");
-            this.$el.css("z-index", this.renderParams.z);
+            this.$el.css("z-index", this.options.renderParams.z);
 
             this.setState();
         },
@@ -84,21 +85,15 @@ define([
         childView: PieceView,
 
         initialize: function(options){
-            this.collection = this.model.get("pieces");
             this.childViewOptions = {
                 renderParams: options.renderParams
             };
+
+            // this.listenTo(this.collection, "add", this.render);
         },
 
         onRender: function(){
-            this.$el.addClass("l"+this.renderParams.z);
-        }
-    });
-
-    var GOPSLayout = Marionette.LayoutView.extend({
-        template: _.template('<div class="group-pieces"></div>'),
-        regions: {
-            grid: ".group-pieces"
+            this.$el.addClass("l"+this.options.renderParams.z);
         }
     });
 
@@ -112,28 +107,36 @@ define([
         //     var cellCollection = new Cells(cells);
         //     col.set("cells", cellCollection);
         // });
-
-        PieceDrawer.Layout = new GOPSLayout();
     });
 
-    PieceDrawer.on("start", function(){
+    PieceDrawer.on("start", function(options){
         console.log("start");
         //first render is different from the ones to follow
-        PieceDrawer.Layout.render();
-        PieceDrawer.Layout.on("show", function(){
-            PieceDrawer.Layout.getRegion("group-pieces").show(new PiecesView({
-                collection: PieceDrawer.Pieces,
-                renderParams: {
-                    height: options.renderParams.height,
-                    width: options.renderParams.width,
-                    z: options.renderParams.z
-                }
-            }));
+
+        PieceDrawer.View = new PiecesView({
+            collection: PieceDrawer.Pieces,
+            renderParams: {
+                height: options.height,
+                width: options.width,
+                z: options.z
+            }
         });
     });
 
     PieceDrawer.Channel.on("piece:click", function(args){
         console.log("channel:", PieceDrawer.Channel.channelName, args.model.toJSON());
+    });
+
+    PieceDrawer.Channel.reply("get:piecedrawer:root", function(){
+        console.log(PieceDrawer.View);
+        return PieceDrawer.View;
+    });
+
+    PieceDrawer.Channel.comply("draw:piece", function(args){
+        console.log("draw:piece", args);
+        var newPiece = new Piece(args.model.toJSON());
+        PieceDrawer.Pieces.add(newPiece);
+        console.log("pieces length", PieceDrawer.Pieces.length);
     });
 
     // PieceDrawer.Channel.reply("get:cell", function(args){
