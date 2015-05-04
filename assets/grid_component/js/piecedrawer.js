@@ -44,6 +44,10 @@ define([
             "mouseup": "broadcastEvent"
         },
 
+        initialize: function(){
+            this.listenTo(this.model, "change:state", this.setState);
+        },
+
         onRender: function(){
             var width = this.options.renderParams.width;
             var height = this.options.renderParams.height;
@@ -134,17 +138,63 @@ define([
 
     PieceDrawer.Channel.comply("draw:piece", function(args){
         console.log("draw:piece", args);
-        var newPiece = new Piece(args.model.toJSON());
-        PieceDrawer.Pieces.add(newPiece);
-        console.log("pieces length", PieceDrawer.Pieces.length);
+        if(args.model !== undefined){
+            switch(args.model.get("state")){
+                case "deleted":
+                    args.model.set({"state": "saved"});
+                    break;
+            }
+        }
+        else{
+            var pieceData;
+            if(args.piece_id !== undefined){
+                pieceData = {"piece_id": args.piece_id};
+            }
+            else{
+                pieceData = {"x": args.x, "y": args.y};
+            }
+            var existentPiece = PieceDrawer.Pieces.findWhere(pieceData);
+            if(existentPiece === undefined){
+                var newPiece = new Piece({
+                    "start": args.start,
+                    "end": args.end,
+                    "index": args.x,
+                    "x": args.x,
+                    "y": args.y,
+                    "state": "saved"
+                });
+                PieceDrawer.Pieces.add(newPiece);
+                console.log("pieces length", PieceDrawer.Pieces.length);
+            }
+        }
     });
 
-    // PieceDrawer.Channel.reply("get:cell", function(args){
-    //     var code = args.code;
-    //     var cell = Grid.Columns.getCell(code);
-    //     console.log("cell is:", cell.toJSON());
-    //     return cell;
-    // });
+    PieceDrawer.Channel.comply("delete:piece", function(args){
+        console.log("delete:piece", args);
+        if(args.model !== undefined){
+            switch(args.model.get("state")){
+                case "new":
+                    PieceDrawer.Pieces.remove(args.model);    
+                    break;
+                case "saved":
+                    args.model.set({"state": "deleted"});
+                    break;
+            }
+        }
+        else{
+            var pieceData;
+            if(args.piece_id !== undefined){
+                pieceData = {"piece_id": args.piece_id};
+            }
+            else{
+                pieceData = {"x": args.x, "y": args.y};
+            }
+            var deletedPiece = PieceDrawer.Pieces.findWhere(pieceData);
+            if(deletedPiece !== undefined){
+                PieceDrawer.Pieces.remove(deletedPiece);
+            }
+        }
+    });
 
     return PieceDrawer;
 });

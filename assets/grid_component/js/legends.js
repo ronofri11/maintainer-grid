@@ -1,46 +1,24 @@
 define([
     "backbone.marionette",
     "backbone.radio",
-    "radio.shim",
-    "../js/gridparser",
-    // "text!../templates/grid.html"
-], function(Marionette, Radio, Shim, GridParser){
-    var Grid = new Marionette.Application();
+    "radio.shim"
+], function(Marionette, Radio, Shim){
+    var Legends = new Marionette.Application();
 
-    Grid.Channel = Radio.channel("grid");
-
-    var Parser = new GridParser();
-    var gridData = Parser.parse("/clients/darwined/api_schedules");
-
-    // console.log("gridData:", gridData);
+    Legends.Channel = Radio.channel("grid");
 
     //set of models and collections needed
-    var Cell = Backbone.Model.extend({});
+    var Legend = Backbone.Model.extend({});
 
-    var Cells = Backbone.Collection.extend({
-        model: Cell
-    });
-
-    var Column = Backbone.Model.extend({});
-
-    var Columns = Backbone.Collection.extend({
-        model: Column,
-
-        getCell: function(code){
-            var splitCode = code.split(".");
-            var col = this.findWhere({"index":splitCode[0]});
-            var cell;
-            if(col !== undefined){
-                var cell = col.get("cells").findWhere({"code": code});
-            }
-            return cell;
-        }
+    var LegendCollection = Backbone.Collection.extend({
+        model: Legend
     });
 
     //Views for the Grid App
-    var CellView = Marionette.ItemView.extend({
+    var LegendView = Marionette.ItemView.extend({
         tagName: "li",
-        template: _.template('<span><%-code%></span>'),
+        className: "legend",
+        template: _.template('<span><%-start_time%> - <%-end_time%></span>'),
         events: {
             "click": "broadcastEvent",
             "mouseover": "broadcastEvent",
@@ -77,15 +55,6 @@ define([
         className: "col",
         childView: CellView,
 
-        // childEvents: {
-        //     "cell:click": "bubbleEvent",
-        //     "cell:mouseover": "bubbleEvent",
-        //     "cell:mouseenter": "bubbleEvent",
-        //     "cell:mousedown": "bubbleEvent",
-        //     "cell:mousemove": "bubbleEvent",
-        //     "cell:mouseup": "bubbleEvent"
-        // },
-
         initialize: function(options){
             this.collection = this.model.get("cells");
             this.childViewOptions = {
@@ -101,24 +70,6 @@ define([
         bubbleEvent: function(emitter, args){
             console.log("in column bubbling cell:", args);
             this.triggerMethod(args.eventName, args);
-        }
-    });
-
-    var GridView = Marionette.CollectionView.extend({
-        tagName: "div",
-        className: "grid",
-        childView: ColumnView,
-
-        initialize: function(options){
-            this.childViewOptions = {
-                renderParams: options.renderParams
-            };
-
-            this.on("grid:click", this.gridClick);
-        },
-
-        onRender: function(){
-            this.$el.css("height", this.options.renderParams.height + "px");
         }
     });
 

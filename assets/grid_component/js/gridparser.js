@@ -93,6 +93,7 @@ define([
             cell["end_time"] = end_trimmed[0] + ":" + end_trimmed[1];
             cell["x"] = x;
             cell["y"] = y;
+            cell["bloque_id"] = blocks["grid"][b]["bloque_id"];
 
             if(columns[x] === undefined){
                 columns[x] = [];
