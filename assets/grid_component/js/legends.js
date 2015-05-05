@@ -61,18 +61,36 @@ define([
 
         onRender: function(){
             this.$el.css("height", this.options.renderParams.height + "px");
+        },
+
+        highlight: function(args){
+            var y = args.y;
+
+            this.collection.each(function(legend) {
+                legend.set({"selected": false});
+                
+                if(legend.get("y") === y){
+                    legend.set({"selected": true});
+                }
+            });
+        },
+
+        clearHighlight: function(){
+            this.collection.each(function(legend) {
+                legend.set({"selected": false});
+            });
         }
     });
 
     Legends.on("before:start", function(options){
-        console.log("before:start");
+        // console.log("before:start");
         //options.defaultCells should contain an array of cells
         Legends.Legends = new LegendCollection(options.defaultCells);
-        console.log("before:start Legends", options);
+        // console.log("before:start Legends", options);
     });
 
     Legends.on("start", function(options){
-        console.log("start");
+        // console.log("start");
 
         Legends.View = new LegendsView({
             collection: Legends.Legends,
@@ -84,7 +102,22 @@ define([
 
     //Legends exposes an API through it's channel
     Legends.Channel.comply("set:cells", function(args){
-        Legends.Legends.reset(args.cells);
+        var testLegend = Legends.Legends.at(0);
+        if(testLegend !== undefined){
+            if(args.cells.length > 0){
+                if(testLegend.get("x") !== args.cells[0].get("x")){
+                    Legends.Legends.reset(args.cells);
+                }
+            }
+        }
+    });
+
+    Legends.Channel.comply("set:highlight", function(args){
+        Legends.View.highlight(args);
+    });
+
+    Legends.Channel.comply("clear:highlight", function(){
+        Legends.View.clearHighlight();
     });
 
     Legends.Channel.reply("get:legends:params", function(){

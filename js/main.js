@@ -19,7 +19,22 @@ require.config({
 });
 
 define([
+    "backbone.marionette",
+    "backbone.radio",
+    "radio.shim",
     "app"
-], function (App) {
-    App.start();
+], function (Marionette, Radio, Shim, App) {
+    var SomeRegion = Marionette.Region.extend({});
+
+    var someRegion = new SomeRegion({
+        el: "#somediv"
+    });
+
+    App.start({height: 500});
+
+    var appChannel = Radio.channel("schedule");
+    var appView = appChannel.request("get:schedule:root");
+
+    someRegion.show(appView);
+
 });

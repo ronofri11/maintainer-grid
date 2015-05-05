@@ -9,19 +9,21 @@
         <script src="js/ie/html5.js"></script>
         <script src="js/ie/ie9.js"></script>
         <![endif]-->
-        <link rel="stylesheet" type="text/css" href="assets/grid/css/schedule.css">
+        <link rel="stylesheet" type="text/css" href="assets/grid_component/css/schedule.css">
     </head>
     <body>
+        <div id="somediv"></div>
         <script data-main="js/main" src="bower_components/requirejs/require.js"></script>
         <script id="schedule-layout-template" type="text/template">
-            <input type="button" id="boton" value="CHANGE MODE"/>
+            <input type="button" id="create" value="CREATE"/>
+            <input type="button" id="delete" value="DELETE"/>
             <div class="sch">
                 <div class="col-left">
-                    <div class="title"></div>
-                    <div class="legends"></div>
+                    <div class="title" id="title-legends">
+                        <li><span>Horario</span></li>
+                    </div>
                 </div>
                 <div class="col-right">
-                    <div class="title"></div>
                     <div class="container">
                         <div class="group-pieces"></div>
                     </div>

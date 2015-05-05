@@ -12,6 +12,7 @@ define([
             async: false,
             success: function(result){
                 blocks = result[0];
+                // blocks = result;   
             }
         });
         return blocks;

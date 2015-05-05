@@ -11,6 +11,7 @@ define([
 
     var Parser = new GridParser();
     var gridData = Parser.parse("/clients/darwined/api_schedules");
+    // var gridData = Parser.parse("/maintainer-grid/assets/grid_component/js/json/grid-itc.json");
 
     //set of models and collections needed
     var Cell = Backbone.Model.extend({});
@@ -97,7 +98,7 @@ define([
         },
 
         bubbleEvent: function(emitter, args){
-            console.log("in column bubbling cell:", args);
+            // console.log("in column bubbling cell:", args);
             this.triggerMethod(args.eventName, args);
         }
     });
@@ -121,7 +122,7 @@ define([
     });
 
     Grid.on("before:start", function(options){
-        console.log("before:start");
+        // console.log("before:start");
         //options.columns should contain an array of objects
         //with a key named cells, and a 
         Grid.Columns = new Columns(gridData.columns);
@@ -133,8 +134,8 @@ define([
     });
 
     Grid.on("start", function(options){
-        console.log("start");
-        console.log(options.renderParams.height);
+        // console.log("start");
+        // console.log(options.renderParams.height);
 
         Grid.View = new GridView({
             collection: Grid.Columns,
@@ -147,7 +148,7 @@ define([
 
     //Grid publishes it's DOM events on the "grid" channel
     Grid.Channel.on("cell:click", function(args){
-        console.log("channel:", Grid.Channel.channelName, args.model.toJSON());
+        // console.log("channel:", Grid.Channel.channelName, args.model.toJSON());
     });
 
     //Grid exposes an API through it's channel
@@ -166,8 +167,38 @@ define([
         return Grid.View;
     });
 
-    Grid.Channel.reply("get:first:column", function(){
+    Grid.Channel.reply("get:column:first", function(){
         return Grid.Columns.at(0).get("cells").toArray();
+    });
+
+    Grid.Channel.reply("get:column:at", function(args){
+        var col = Grid.Columns.findWhere({"index": "" + args.x});
+        if(col !== undefined){
+            return col.get("cells").toArray();
+        }
+        return [];
+    });
+
+    Grid.Channel.reply("get:column:headers", function(){
+        var headers = [
+            {"index": 1, "caption": "Lunes"},
+            {"index": 2, "caption": "Martes"},
+            {"index": 3, "caption": "Miércoles"},
+            {"index": 4, "caption": "Jueves"},
+            {"index": 5, "caption": "Viernes"},
+            {"index": 6, "caption": "Sábado"},
+            {"index": 7, "caption": "Domingo"}
+        ]
+
+        var availableHeaders = [];
+
+        _.each(headers, function(header){
+            if(Grid.Columns.findWhere({"index": "" + header.index}) !== undefined){
+                availableHeaders.push(header);
+            }
+        });
+
+        return availableHeaders;
     });
 
     return Grid;

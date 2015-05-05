@@ -102,7 +102,7 @@ define([
     });
 
     PieceDrawer.on("before:start", function(options){
-        console.log("before:start");
+        // console.log("before:start");
         //options.columns should contain an array of objects
         //with a key named cells, and a 
         PieceDrawer.Pieces = new Pieces();
@@ -114,7 +114,7 @@ define([
     });
 
     PieceDrawer.on("start", function(options){
-        console.log("start");
+        // console.log("start");
         //first render is different from the ones to follow
 
         PieceDrawer.View = new PiecesView({
@@ -128,16 +128,16 @@ define([
     });
 
     PieceDrawer.Channel.on("piece:click", function(args){
-        console.log("channel:", PieceDrawer.Channel.channelName, args.model.toJSON());
+        // console.log("channel:", PieceDrawer.Channel.channelName, args.model.toJSON());
     });
 
     PieceDrawer.Channel.reply("get:piecedrawer:root", function(){
-        console.log(PieceDrawer.View);
+        // console.log(PieceDrawer.View);
         return PieceDrawer.View;
     });
 
     PieceDrawer.Channel.comply("draw:piece", function(args){
-        console.log("draw:piece", args);
+        // console.log("draw:piece", args);
         if(args.model !== undefined){
             switch(args.model.get("state")){
                 case "deleted":
@@ -161,16 +161,16 @@ define([
                     "index": args.x,
                     "x": args.x,
                     "y": args.y,
-                    "state": "saved"
+                    "state": "new"
                 });
                 PieceDrawer.Pieces.add(newPiece);
-                console.log("pieces length", PieceDrawer.Pieces.length);
+                // console.log("pieces length", PieceDrawer.Pieces.length);
             }
         }
     });
 
     PieceDrawer.Channel.comply("delete:piece", function(args){
-        console.log("delete:piece", args);
+        // console.log("delete:piece", args);
         if(args.model !== undefined){
             switch(args.model.get("state")){
                 case "new":
