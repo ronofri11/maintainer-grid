@@ -12,8 +12,6 @@ define([
     var Parser = new GridParser();
     var gridData = Parser.parse("/clients/darwined/api_schedules");
 
-    // console.log("gridData:", gridData);
-
     //set of models and collections needed
     var Cell = Backbone.Model.extend({});
 
@@ -166,6 +164,10 @@ define([
 
     Grid.Channel.reply("get:grid:root", function(){
         return Grid.View;
+    });
+
+    Grid.Channel.reply("get:first:column", function(){
+        return Grid.Columns.at(0).get("cells").toArray();
     });
 
     return Grid;

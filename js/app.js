@@ -3,10 +3,11 @@ define([
 	"backbone.radio",
 	"radio.shim",
     "../assets/grid_component/js/grid",
-    "../assets/grid_component/js/piecedrawer"
+    "../assets/grid_component/js/piecedrawer",
+    "../assets/grid_component/js/legends"
   // "../assets/grid/js/views/gridview",
   // "../assets/grid/js/blockparser"
-], function (Marionette, Radio, Shim, Grid, PieceDrawer) {
+], function (Marionette, Radio, Shim, Grid, PieceDrawer, Legends) {
 
     //this App works as the full schedule component
     //including Grid, PieceDrawer, Headers and Legends.
@@ -14,13 +15,10 @@ define([
 
     App.Mousedown = false;
 
-
     var RootView = Marionette.LayoutView.extend({
         el: "body",
         template: "#schedule-layout-template",
         regions:{
-            "legends-title": ".col-left > .title",
-            "legends-body": ".col-left > .legends",
             "day-titles": ".col-right > .title",
             "group-pieces": ".col-right > .container > .group-pieces"
         },
@@ -69,15 +67,15 @@ define([
     App.Layout = new RootView();
     App.Layout.render();
 
-    var ContainerRegion = Marionette.Region.extend({
-        el: ".col-right > .container",
+    var AppendableRegion = Marionette.Region.extend({
         attachHtml: function(view){
             this.$el.append(view.el);
         }
     });
 
     App.Layout.addRegions({
-        container: new ContainerRegion()
+        "container": new AppendableRegion({el: ".col-right > .container"}),
+        "col-left": new AppendableRegion({el: ".col-left"})
     });
 
     // var blockparser = new BlockParser();
@@ -120,6 +118,18 @@ define([
 
     App.PieceDrawer = PieceDrawer;
     App.PieceDrawer.start(renderParams);
+
+    App.Legends = Legends;
+    var defaultCells = gridChannel.request("get:first:column");
+    App.Legends.start({
+        renderParams: renderParams,
+        defaultCells: defaultCells
+    });
+
+    var legendChannel = Radio.channel("legends");
+    var legendView = legendChannel.request("get:legends:root");
+
+    App.Layout.getRegion("col-left").show(legendView);
 
     var pieceChannel = Radio.channel("piecedrawer");
     var pieceView = pieceChannel.request("get:piecedrawer:root");
