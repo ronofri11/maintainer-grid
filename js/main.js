@@ -30,11 +30,39 @@ define([
         el: "#somediv"
     });
 
-    App.start({height: 500});
+    var app = new App("schedule1", "/maintainer-grid/assets/grid_component/js/json/grid-blocks.json");
 
-    var appChannel = Radio.channel("schedule");
+    app.start({height: 300});
+
+    var appChannel = app.Channel;
     var appView = appChannel.request("get:schedule:root");
 
     someRegion.show(appView);
+
+    var someOtherRegion = new SomeRegion({
+        el: "#someotherdiv"
+    });
+
+    var app2 = new App("schedule2", "/maintainer-grid/assets/grid_component/js/json/grid-itc.json");
+
+    app2.start({height: 200});
+
+    var app2Channel = app2.Channel;
+    var app2View = app2Channel.request("get:schedule:root");
+
+    someOtherRegion.show(app2View);
+
+    var div3 = new SomeRegion({
+        el: "#div3"
+    });
+
+    var app3 = new App("schedule3", "/maintainer-grid/assets/grid_component/js/json/grid-uniminuto.json");
+
+    app3.start({height: 200});
+
+    var app3Channel = app3.Channel;
+    var app3View = app3Channel.request("get:schedule:root");
+
+    div3.show(app3View);
 
 });
