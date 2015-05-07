@@ -22,7 +22,7 @@ define([
     "backbone.marionette",
     "backbone.radio",
     "radio.shim",
-    "app"
+    "../assets/grid_component/js/schedule"
 ], function (Marionette, Radio, Shim, App) {
     var SomeRegion = Marionette.Region.extend({});
 

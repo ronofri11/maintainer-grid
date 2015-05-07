@@ -80,6 +80,12 @@
         "model": "Sede",
         "lookup": "sede_id",
         "key": "sede"
+      },
+      {
+        "model": "Bloque",
+        "lookup": "bloques_ids",
+        "nested": "array",
+        "key": "bloques"
       }
     ]
   },
