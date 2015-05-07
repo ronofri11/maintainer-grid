@@ -22,47 +22,52 @@ define([
     "backbone.marionette",
     "backbone.radio",
     "radio.shim",
-    "../assets/grid_component/js/schedule"
+    // "../assets/grid_component/js/schedule"
+    "../assets/store_component/js/store"
 ], function (Marionette, Radio, Shim, App) {
-    var SomeRegion = Marionette.Region.extend({});
+    // var SomeRegion = Marionette.Region.extend({});
 
-    var someRegion = new SomeRegion({
-        el: "#somediv"
-    });
+    // var someRegion = new SomeRegion({
+    //     el: "#somediv"
+    // });
 
-    var app = new App("schedule1", "/maintainer-grid/assets/grid_component/js/json/grid-blocks.json");
+    // var app = new App("schedule1", "/maintainer-grid/assets/grid_component/js/json/grid-blocks.json");
 
-    app.start({height: 300});
+    // app.start({height: 300});
 
-    var appChannel = app.Channel;
-    var appView = appChannel.request("get:schedule:root");
+    // var appChannel = app.Channel;
+    // var appView = appChannel.request("get:schedule:root");
 
-    someRegion.show(appView);
+    // someRegion.show(appView);
 
-    var someOtherRegion = new SomeRegion({
-        el: "#someotherdiv"
-    });
+    // var someOtherRegion = new SomeRegion({
+    //     el: "#someotherdiv"
+    // });
 
-    var app2 = new App("schedule2", "/maintainer-grid/assets/grid_component/js/json/grid-itc.json");
+    // var app2 = new App("schedule2", "/maintainer-grid/assets/grid_component/js/json/grid-itc.json");
 
-    app2.start({height: 200});
+    // app2.start({height: 200});
 
-    var app2Channel = app2.Channel;
-    var app2View = app2Channel.request("get:schedule:root");
+    // var app2Channel = app2.Channel;
+    // var app2View = app2Channel.request("get:schedule:root");
 
-    someOtherRegion.show(app2View);
+    // someOtherRegion.show(app2View);
 
-    var div3 = new SomeRegion({
-        el: "#div3"
-    });
+    // var div3 = new SomeRegion({
+    //     el: "#div3"
+    // });
 
-    var app3 = new App("schedule3", "/maintainer-grid/assets/grid_component/js/json/grid-uniminuto.json");
+    // var app3 = new App("schedule3", "/maintainer-grid/assets/grid_component/js/json/grid-uniminuto.json");
 
-    app3.start({height: 200});
+    // app3.start({height: 200});
 
-    var app3Channel = app3.Channel;
-    var app3View = app3Channel.request("get:schedule:root");
+    // var app3Channel = app3.Channel;
+    // var app3View = app3Channel.request("get:schedule:root");
 
-    div3.show(app3View);
+    // div3.show(app3View);
+
+    var store = new App("store", "/maintainer-grid/assets/store_component/js/json/configuration.json");
+    store.start({url:"/clients/darwined/"});
+    window.Radio = Radio;
 
 });
