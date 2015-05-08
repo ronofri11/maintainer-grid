@@ -164,15 +164,60 @@ define([
                     console.log("All Requests done");
 
                     // Build links for the model
-                    // that.buildRelationshipsForModel(modelName);
+                    Store.Channel.command("build:relationships:for", {modelName: modelName});
 
                     // And its dependencies
-                    // _.each(dependencies, function(dep) {
-                    //     that.buildRelationshipsForModel(dep);
-                    // }, that);
+                    _.each(dependencies, function(dep) {
+                        Store.Channel.command("build:relationships:for", {modelName: dep});
+                    });
 
-                    // that.trigger("store:fetch:complete");
+                    Store.Channel.trigger("store:model:loaded", {modelName: modelName});
                     console.log("Store models full", Store.models);
+                });
+            });
+
+            Store.Channel.comply("build:relationships:for", function(args){
+                var modelName = args.modelName;
+
+                // Get definition
+                var definition = Store.Definitions.get(modelName);
+
+                // Build deps
+                _.each(definition.get('deps'), function(dep) {
+                    // Where to look
+                    var target_collection = Store.models[dep.model];
+
+                    // Now, for each item in the collection
+                    var collection = Store.models[modelName];
+                    collection.each(function(model) {
+                        // Get lookup key
+                        var nested_type = dep.nested;
+                        var lookup_value = model.get(dep.lookup);
+
+                        if(nested_type !== undefined){
+                            if(nested_type === "array"){
+                                var target_array = [];
+                                for(var i = 0; i < lookup_value.length; i++){
+                                    target_array.push(target_collection.get(lookup_value[i]));
+                                }
+                                model.set(dep.key, target_array);
+                            }
+                            else if(nested_type === "dictionary_array"){
+                                var target_array = [];
+                                for(var i = 0; i < lookup_value.length; i++){
+                                    var atributo = target_collection.get(lookup_value[i].atributo_id);
+                                    target_array.push({"atributo": atributo, "prioridad": lookup_value[i].prioridad});
+                                }
+                                model.set(dep.key, target_array);
+                            }
+                        }
+                        else{
+                            var target_model = target_collection.get(lookup_value);
+                            // Store
+                            model.set(dep.key, target_model);
+                            // Find store name
+                        }
+                    });
                 });
             });
         };
