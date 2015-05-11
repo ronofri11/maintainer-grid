@@ -36,6 +36,18 @@ define([
                     var cell = col.get("cells").findWhere({"code": code});
                 }
                 return cell;
+            },
+
+            getCellById: function(id){
+                var cell;
+                this.each(function(col){
+                    var c = col.get("cells").findWhere({"bloque_id": id});
+                    if(c !== undefined){
+                        cell = c;
+                    }
+                });
+
+                return cell;
             }
         });
 
@@ -158,6 +170,13 @@ define([
         Grid.Channel.reply("get:cell", function(args){
             var code = args.code;
             var cell = Grid.Columns.getCell(code);
+            // console.log("cell is:", cell.toJSON());
+            return cell;
+        });
+
+        Grid.Channel.reply("get:cell:by:id", function(args){
+            var id = args.id;
+            var cell = Grid.Columns.getCellById(id);
             // console.log("cell is:", cell.toJSON());
             return cell;
         });

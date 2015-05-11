@@ -72,7 +72,7 @@ define([
     // window.Radio = Radio;
 
     var maintainer = new App("maintainer");
-    maintainer.start();
+    maintainer.start({modelName: "Profesor"});
     window.Radio = Radio;
 
 });

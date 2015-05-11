@@ -171,8 +171,8 @@ define([
                         Store.Channel.command("build:relationships:for", {modelName: dep});
                     });
 
-                    Store.Channel.trigger("store:model:loaded", {modelName: modelName});
                     console.log("Store models full", Store.models);
+                    Store.Channel.trigger("store:model:loaded", {modelName: modelName});
                 });
             });
 
@@ -220,6 +220,22 @@ define([
                     });
                 });
             });
+            
+            Store.Channel.reply("get:models", function(args){
+                var modelName = args.modelName;
+                return Store.models[modelName];
+            });
+
+            Store.Channel.reply("get:collection:class", function(args){
+                var modelName = args.modelName;
+
+                var definition = Store.Definitions.findWhere({"name": modelName});
+                if(definition !== undefined){
+                    return Store.Collections[definition.get("collectionName")];
+                }
+                return undefined;
+            });
+
         };
 
 

@@ -147,6 +147,8 @@ define([
             var headersView = headersChannel.request("get:headers:root");
 
             App.setHandlers();
+
+            App.Channel.trigger("schedule:ready");
         });
 
         App.setHandlers = function(){
@@ -185,6 +187,10 @@ define([
 
                 $("#delete").on("click", function(){
                     App.Channel.trigger("change:mode", {mode:"delete"});
+                });
+
+                $("#clean").on("click", function(){
+                    App.Channel.command("clean:pieces");
                 });
             });
 
@@ -231,6 +237,42 @@ define([
 
             App.Channel.reply("get:schedule:root", function(){
                 return App.Layout;
+            });
+
+            App.Channel.comply("draw:existent:pieces", function(args){
+                var piecesCollection = args.pieces;
+                // console.log(args.pieces);
+                _.each(piecesCollection, function(piece){
+                    var cell = gridChannel.request("get:cell:by:id", {
+                        id: piece.get("id")
+                    });
+
+                    if(cell !== undefined){
+                        var cellData = cell.toJSON();
+                        var state = piece.get("state");
+                        if(state === undefined){
+                            state = "saved";
+                        }
+                        pieceChannel.command("draw:piece", {
+                            state: state,
+                            start: cellData.start,
+                            end: cellData.end,
+                            index: cellData.x,
+                            x: cellData.x,
+                            y: cellData.y,
+                            id: cellData.bloque_id
+                        });
+                    }
+
+                });
+            });
+
+            App.Channel.comply("clean:pieces", function(){
+                pieceChannel.command("clean:piecedrawer");
+            });
+
+            App.Channel.reply("export:pieces", function(){
+                return pieceChannel.request("export:pieces");
             });
 
             //Demultiplexers

@@ -149,8 +149,11 @@ define([
             }
             else{
                 var pieceData;
-                if(args.piece_id !== undefined){
-                    pieceData = {"piece_id": args.piece_id};
+                var state = "new";
+                if(args.state !== undefined){
+                    console.log("args state no es undefined", args.state);
+                    pieceData = {"id": args.id};
+                    state = args.state;
                 }
                 else{
                     pieceData = {"x": args.x, "y": args.y};
@@ -158,12 +161,13 @@ define([
                 var existentPiece = PieceDrawer.Pieces.findWhere(pieceData);
                 if(existentPiece === undefined){
                     var newPiece = new Piece({
+                        "id": args.id,
                         "start": args.start,
                         "end": args.end,
                         "index": args.x,
                         "x": args.x,
                         "y": args.y,
-                        "state": "new"
+                        "state": state
                     });
                     PieceDrawer.Pieces.add(newPiece);
                     // console.log("pieces length", PieceDrawer.Pieces.length);
@@ -196,6 +200,14 @@ define([
                     PieceDrawer.Pieces.remove(deletedPiece);
                 }
             }
+        });
+
+        PieceDrawer.Channel.comply("clean:piecedrawer", function(){
+            PieceDrawer.Pieces.reset();
+        });
+
+        PieceDrawer.Channel.reply("export:pieces", function(){
+            return PieceDrawer.Pieces.toArray();
         });
 
         return PieceDrawer;

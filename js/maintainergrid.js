@@ -7,35 +7,128 @@ define([
 ], function (Marionette, Radio, Shim, ScheduleClass, StoreClass) {
 
     var AppConstructor = function(channelName){
-        //this App works as the full maintainer component
         var App = new Marionette.Application();
         App.Channel = Radio.channel(channelName);
+
+        var OptionView = Marionette.ItemView.extend({
+            tagName: "option",
+            template: _.template('<%-nombre%>'),
+            onRender: function(){
+                this.$el.val(this.model.get("id"));
+            }
+        });
+
+        var SelectView = Marionette.CollectionView.extend({
+            tagName: "select",
+            childView: OptionView,
+            events: {
+                "change": function(event){
+                    App.Channel.trigger("selected:model:change", {
+                        id: parseInt(this.$el.find("option:selected").val())
+                    });
+                }
+            }
+        });
+        //this App works as the full maintainer component
 
         var storeConfigUrl = "/maintainer-grid/assets/store_component/js/json/configuration.json";
         var storeChannelName = channelName + "_store";
 
         App.Store = new StoreClass(storeChannelName, storeConfigUrl);
 
-        App.on("before:start", function(options){
+        var scheduleConfigUrl = "/clients/darwined/api_schedules";
+        var scheduleChannelName = channelName + "_schedule";
+
+        App.Schedule = new ScheduleClass(scheduleChannelName, scheduleConfigUrl);
+
+        App.on("start", function(args){
+            var SomeRegion = Marionette.Region.extend({});
+
+            var someRegion = new SomeRegion({
+                el: "#somediv"
+            });
+
+            var someOtherRegion = new SomeRegion({
+                el: "#someotherdiv"
+            });
+
             var storeChannel = Radio.channel(storeChannelName);
+            var scheduleChannel = Radio.channel(scheduleChannelName);
+
+            App.Channel.listenTo(scheduleChannel, "schedule:ready", function(){
+                console.log("Schedule Loaded");
+                var scheduleView = scheduleChannel.request("get:schedule:root");
+                someRegion.show(scheduleView);
+            });
+
             App.Channel.listenTo(storeChannel, "end:configuration", function(){
                 console.log("Store ready for queries");
+                App.Channel.command("fetch:models", {modelName: args.modelName});
             });
-        });
 
-        App.on("start", function(options){
-            App.Store.start({url:"/clients/darwined/"});
             App.setHandlers();
+            
+            App.Store.start({url:"/clients/darwined/"});
+            App.Schedule.start({height: 300});
+
+
+
+            App.Channel.on("models:loaded", function(){
+                var DarwinCollection = storeChannel.request("get:collection:class", {modelName: args.modelName});
+                
+                App.Selection = new DarwinCollection();
+
+                App.Models = App.Channel.request("get:models", {modelName: args.modelName});
+                if(App.Models.length > 0){
+                    App.Selection.add(App.Models.at(0));
+                }
+
+                App.SelectView = new SelectView({
+                    collection: App.Models
+                });
+
+                someOtherRegion.show(App.SelectView);
+
+                App.Channel.command("change:selection");
+            });
         });
 
         App.setHandlers = function(){
             var storeChannel = Radio.channel(storeChannelName);
+            var scheduleChannel = Radio.channel(scheduleChannelName);
 
             App.Channel.comply("fetch:models", function(args){
                 storeChannel.command("fetch:chain:for", {modelName: args.modelName});
             });
             App.Channel.listenTo(storeChannel, "store:model:loaded", function(args){
-                alert("Done fetching " + args.modelName);
+                App.Channel.trigger("models:loaded");
+            });
+            App.Channel.reply("get:models", function(args){
+                var models = storeChannel.request("get:models", {modelName: args.modelName});
+                console.log("maintainer: models", args.modelName, models);
+                return models;
+            });
+
+            App.Channel.on("selected:model:change", function(args){
+                var model_id = args.id;
+                var newSelectedModel = App.Models.findWhere({"id": model_id});
+                var piecesArray = scheduleChannel.request("export:pieces");
+                console.log("piecesArray:",piecesArray);
+                App.Selection.each(function(model){
+                    model.set({"bloques": piecesArray});
+                });
+
+                App.Selection.reset([newSelectedModel]);
+                App.Channel.command("change:selection");
+            });
+
+            App.Channel.comply("change:selection", function(){
+                var model;
+                if(App.Selection.length > 0){
+                    model = App.Selection.at(0);
+                    scheduleChannel.command("clean:pieces");
+                    scheduleChannel.command("draw:existent:pieces", {pieces: model.get("bloques")});
+                }
             });
         };
 
