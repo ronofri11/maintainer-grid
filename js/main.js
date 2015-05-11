@@ -23,7 +23,8 @@ define([
     "backbone.radio",
     "radio.shim",
     // "../assets/grid_component/js/schedule"
-    "../assets/store_component/js/store"
+    // "../assets/store_component/js/store"
+    "maintainergrid"
 ], function (Marionette, Radio, Shim, App) {
     // var SomeRegion = Marionette.Region.extend({});
 
@@ -66,8 +67,12 @@ define([
 
     // div3.show(app3View);
 
-    var store = new App("store", "/maintainer-grid/assets/store_component/js/json/configuration.json");
-    store.start({url:"/clients/darwined/"});
+    // var store = new App("store", "/maintainer-grid/assets/store_component/js/json/configuration.json");
+    // store.start({url:"/clients/testing/"});
+    // window.Radio = Radio;
+
+    var maintainer = new App("maintainer");
+    maintainer.start();
     window.Radio = Radio;
 
 });
