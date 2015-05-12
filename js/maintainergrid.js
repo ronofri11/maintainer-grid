@@ -3,8 +3,9 @@ define([
     "backbone.radio",
     "radio.shim",
     "../assets/grid_component/js/schedule",
-    "../assets/store_component/js/store"
-], function (Marionette, Radio, Shim, ScheduleClass, StoreClass) {
+    "../assets/store_component/js/store",
+    "../assets/typeahead_component/js/typeahead"
+], function (Marionette, Radio, Shim, ScheduleClass, StoreClass, TyConstructor) {
 
     var AppConstructor = function(channelName){
         var App = new Marionette.Application();
@@ -40,6 +41,8 @@ define([
         var scheduleChannelName = channelName + "_schedule";
 
         App.Schedule = new ScheduleClass(scheduleChannelName, scheduleConfigUrl);
+
+        App.TypeAhead = new TyConstructor(channelName + "_ty");
 
         App.on("start", function(args){
             var SomeRegion = Marionette.Region.extend({});
@@ -79,23 +82,30 @@ define([
                 App.Selection = new DarwinCollection();
 
                 App.Models = App.Channel.request("get:models", {modelName: args.modelName});
-                if(App.Models.length > 0){
-                    App.Selection.add(App.Models.at(0));
-                }
+                // if(App.Models.length > 0){
+                //     App.Selection.add(App.Models.at(0));
+                // }
 
-                App.SelectView = new SelectView({
-                    collection: App.Models
+                App.TypeAhead.start({
+                    containerHeight: someOtherRegion.$el.outerHeight(),
+                    models: App.Models,
+                    separator: "__",
+                    displayKeys: ["nombre","codigo"]
                 });
 
-                someOtherRegion.show(App.SelectView);
+                var tyChannel = App.TypeAhead.Channel;
+                var tyView = tyChannel.request("get:typeahead:root");
 
-                App.Channel.command("change:selection");
+                someOtherRegion.show(tyView);
+
+                // App.Channel.command("change:selection");
             });
         });
 
         App.setHandlers = function(){
             var storeChannel = Radio.channel(storeChannelName);
             var scheduleChannel = Radio.channel(scheduleChannelName);
+            var tyChannel = App.TypeAhead.Channel;
 
             App.Channel.comply("fetch:models", function(args){
                 storeChannel.command("fetch:chain:for", {modelName: args.modelName});
@@ -105,15 +115,12 @@ define([
             });
             App.Channel.reply("get:models", function(args){
                 var models = storeChannel.request("get:models", {modelName: args.modelName});
-                console.log("maintainer: models", args.modelName, models);
                 return models;
             });
 
-            App.Channel.on("selected:model:change", function(args){
-                var model_id = args.id;
-                var newSelectedModel = App.Models.findWhere({"id": model_id});
+            App.Channel.listenTo(tyChannel, "selected:model:change", function(args){
+                var newSelectedModel = args.model;
                 var piecesArray = scheduleChannel.request("export:pieces");
-                console.log("piecesArray:",piecesArray);
                 App.Selection.each(function(model){
                     model.set({"bloques": piecesArray});
                 });

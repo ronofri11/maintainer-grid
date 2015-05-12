@@ -182,7 +182,7 @@ define([
         });
 
         PieceDrawer.Channel.comply("delete:piece", function(args){
-            console.log("delete:piece", args);
+            // console.log("delete:piece", args);
             if(args.model !== undefined){
                 switch(args.model.get("state")){
                     case "new":
