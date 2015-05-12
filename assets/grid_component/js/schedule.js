@@ -239,9 +239,8 @@ define([
                 return App.Layout;
             });
 
-            App.Channel.comply("draw:existent:pieces", function(args){
+            App.Channel.comply("load:existent:pieces", function(args){
                 var piecesCollection = args.pieces;
-                // console.log(args.pieces);
                 _.each(piecesCollection, function(piece){
                     var cell = gridChannel.request("get:cell:by:id", {
                         id: piece.get("id")
@@ -253,7 +252,7 @@ define([
                         if(state === undefined){
                             state = "saved";
                         }
-                        pieceChannel.command("draw:piece", {
+                        pieceChannel.command("load:piece", {
                             state: state,
                             start: cellData.start,
                             end: cellData.end,

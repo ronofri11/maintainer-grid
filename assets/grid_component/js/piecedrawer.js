@@ -139,7 +139,6 @@ define([
         });
 
         PieceDrawer.Channel.comply("draw:piece", function(args){
-            // console.log("draw:piece", args);
             if(args.model !== undefined){
                 switch(args.model.get("state")){
                     case "deleted":
@@ -148,35 +147,42 @@ define([
                 }
             }
             else{
-                var pieceData;
-                var state = "new";
-                if(args.state !== undefined){
-                    console.log("args state no es undefined", args.state);
-                    pieceData = {"id": args.id};
-                    state = args.state;
-                }
-                else{
-                    pieceData = {"x": args.x, "y": args.y};
-                }
+                var pieceData = {"x": args.x, "y": args.y};
                 var existentPiece = PieceDrawer.Pieces.findWhere(pieceData);
                 if(existentPiece === undefined){
                     var newPiece = new Piece({
-                        "id": args.id,
+                        "id": args.bloque_id,
                         "start": args.start,
                         "end": args.end,
                         "index": args.x,
                         "x": args.x,
                         "y": args.y,
-                        "state": state
+                        "state": "new"
                     });
                     PieceDrawer.Pieces.add(newPiece);
-                    // console.log("pieces length", PieceDrawer.Pieces.length);
                 }
             }
         });
 
+        PieceDrawer.Channel.comply("load:piece", function(args){
+            var pieceData = {"id": args.id};
+            var existentPiece = PieceDrawer.Pieces.findWhere(pieceData);
+            if(existentPiece === undefined){
+                var loadedPiece = new Piece({
+                    "id": args.id,
+                    "start": args.start,
+                    "end": args.end,
+                    "index": args.x,
+                    "x": args.x,
+                    "y": args.y,
+                    "state": args.state
+                });
+                PieceDrawer.Pieces.add(loadedPiece);
+            }
+        });
+
         PieceDrawer.Channel.comply("delete:piece", function(args){
-            // console.log("delete:piece", args);
+            console.log("delete:piece", args);
             if(args.model !== undefined){
                 switch(args.model.get("state")){
                     case "new":

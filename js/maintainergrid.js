@@ -127,7 +127,7 @@ define([
                 if(App.Selection.length > 0){
                     model = App.Selection.at(0);
                     scheduleChannel.command("clean:pieces");
-                    scheduleChannel.command("draw:existent:pieces", {pieces: model.get("bloques")});
+                    scheduleChannel.command("load:existent:pieces", {pieces: model.get("bloques")});
                 }
             });
         };
