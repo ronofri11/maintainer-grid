@@ -6,7 +6,7 @@ define([
     "text!/maintainer-grid/assets/typeahead_component/templates/optiontemplate.html"
 ], function (Marionette, Radio, Shim, TypeaHeadTemplate, OptionTemplate) {
 
-    var TypeAheadConstructor = function(channelName){
+     var TypeAheadConstructor = function(channelName){
 
         var TypeAhead = new Marionette.Application();
         TypeAhead.Channel = Radio.channel(channelName);
@@ -27,6 +27,9 @@ define([
             },
             initialize: function(){
                 this.listenTo(this.model, "change:selected", this.updateSelected);
+            },
+            onRender: function(){
+                this.updateSelected();
             },
             enterOption: function(event){
                 TypeAhead.Channel.trigger("option:click", {
@@ -93,7 +96,7 @@ define([
                 this.updateSelected(args.model);
             },
             updateSelected: function(model){
-                this.collection.each(function(option){
+                TypeAhead.optionCollection.each(function(option){
                     if(option.cid === model.cid){
                         option.set({"selected": true});
                     }
@@ -107,8 +110,8 @@ define([
                 searchinput.val(selectedItem);
                 this.outMglass();
 
-                var index = this.collection.indexOf(model);
-                this.adjustScroll(index);
+                // var index = this.collection.indexOf(model);
+                this.adjustScroll();
 
                 TypeAhead.Channel.trigger("selected:model:change", {model: model});
             },
@@ -119,7 +122,7 @@ define([
                 }else{
                     searchinput.removeClass("mglass");
                 }
-                items.removeClass("selected");
+                // items.removeClass("selected");
                 searchinput.select();
 
             },
@@ -168,7 +171,7 @@ define([
                     this.updateSelected(prevOption);
                 }
             },
-            adjustScroll: function(index){
+            adjustScroll: function(){
                 var optionbox = this.$el.find(".optionbox");
                 var ulItem = optionbox.find("ul");
                 var item = optionbox.find("li.selected");

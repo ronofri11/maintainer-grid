@@ -90,18 +90,6 @@
     ]
   },
   {
-    "name": "Professor",
-    "collectionName": "Professors",
-    "urlRoot": "/api_profesors",
-    "deps": [
-      {
-        "model": "Sede",
-        "lookup": "sede_id",
-        "key": "sede"
-      }
-    ]
-  },
-  {
     "name": "Facultad",
     "collectionName": "Facultads",
     "urlRoot": "/api_facultads",

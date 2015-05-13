@@ -91,15 +91,6 @@ define([
             className: "col",
             childView: CellView,
 
-            // childEvents: {
-            //     "cell:click": "bubbleEvent",
-            //     "cell:mouseover": "bubbleEvent",
-            //     "cell:mouseenter": "bubbleEvent",
-            //     "cell:mousedown": "bubbleEvent",
-            //     "cell:mousemove": "bubbleEvent",
-            //     "cell:mouseup": "bubbleEvent"
-            // },
-
             initialize: function(options){
                 this.collection = this.model.get("cells");
                 this.childViewOptions = {
@@ -113,7 +104,6 @@ define([
             },
 
             bubbleEvent: function(emitter, args){
-                // console.log("in column bubbling cell:", args);
                 this.triggerMethod(args.eventName, args);
             }
         });
@@ -137,7 +127,6 @@ define([
         });
 
         Grid.on("before:start", function(options){
-            // console.log("before:start");
             //options.columns should contain an array of objects
             //with a key named cells, and a 
             Grid.Columns = new Columns(gridData.columns);
@@ -149,9 +138,6 @@ define([
         });
 
         Grid.on("start", function(options){
-            // console.log("start");
-            // console.log(options.renderParams.height);
-
             Grid.View = new GridView({
                 collection: Grid.Columns,
                 renderParams: {
@@ -162,22 +148,19 @@ define([
         });
 
         //Grid publishes it's DOM events on the "grid" channel
-        Grid.Channel.on("cell:click", function(args){
-            // console.log("channel:", Grid.Channel.channelName, args.model.toJSON());
-        });
+        // Grid.Channel.on("cell:click", function(args){
+        // });
 
         //Grid exposes an API through it's channel
         Grid.Channel.reply("get:cell", function(args){
             var code = args.code;
             var cell = Grid.Columns.getCell(code);
-            // console.log("cell is:", cell.toJSON());
             return cell;
         });
 
         Grid.Channel.reply("get:cell:by:id", function(args){
             var id = args.id;
             var cell = Grid.Columns.getCellById(id);
-            // console.log("cell is:", cell.toJSON());
             return cell;
         });
 

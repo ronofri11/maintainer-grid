@@ -1,8 +1,6 @@
 define([
-    "backbone.marionette",
-    "backbone.radio",
-    "radio.shim"
-], function (Marionette, Radio, Shim) {
+    "backbone",
+], function (Backbone) {
 
     var DarwinClasses = {};
 
