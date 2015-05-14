@@ -60,8 +60,10 @@ define([
                 "mouseup": "broadcastEvent"
             },
 
-            onRender: function(){
-                var height = this.options.renderParams.height;
+            onShow: function(){
+                var renderParams = Grid.Channel.request("get:grid:params");
+
+                var height = renderParams.height;
                 var start = parseFloat(this.model.get("start"));
                 var end = parseFloat(this.model.get("end"));
 
@@ -94,9 +96,10 @@ define([
                 };
             },
 
-            onRender: function(){
-                this.$el.css("width", this.options.renderParams.width + "%");
-                this.$el.css("height", this.options.renderParams.height + "px");
+            onShow: function(){
+                var renderParams = Grid.Channel.request("get:grid:params");
+                this.$el.css("width", renderParams.width + "%");
+                this.$el.css("height", renderParams.height + "px");
             },
 
             bubbleEvent: function(emitter, args){
@@ -109,16 +112,15 @@ define([
             className: "grid",
             childView: ColumnView,
 
-            initialize: function(options){
-                this.childViewOptions = {
-                    renderParams: options.renderParams
-                };
+            onShow: function(){
+                var parentHeight = this.$el.parent().height();
 
-                this.on("grid:click", this.gridClick);
-            },
+                this.$el.css("height", parentHeight + "px");
 
-            onRender: function(){
-                this.$el.css("height", this.options.renderParams.height + "px");
+                Grid.renderParams = {
+                    height: parentHeight,
+                    width: parseFloat(100.0/Grid.Columns.length)
+                }
             }
         });
 
@@ -135,11 +137,7 @@ define([
 
         Grid.on("start", function(options){
             Grid.View = new GridView({
-                collection: Grid.Columns,
-                renderParams: {
-                    height: options.height,
-                    width: parseFloat(100.0/Grid.Columns.length)
-                }
+                collection: Grid.Columns
             });
         });
 
@@ -161,7 +159,7 @@ define([
         });
 
         Grid.Channel.reply("get:grid:params", function(){
-            return Grid.View.getOption("renderParams");
+            return Grid.renderParams;
         });
 
         Grid.Channel.reply("get:root", function(){

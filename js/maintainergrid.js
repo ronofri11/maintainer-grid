@@ -70,9 +70,9 @@ define([
 
             App.setHandlers();
             
-            App.Store.start({url:"/clients/testing/"});
+            App.Store.start({url:"/clients/darwined/"});
             App.Schedule.start({
-                url: "/clients/testing/api_schedules"
+                url: "/clients/darwined/api_schedules"
             });
 
 

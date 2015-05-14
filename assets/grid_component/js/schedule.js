@@ -27,6 +27,7 @@ define([
         });
 
         var RootView = Marionette.LayoutView.extend({
+            className: "sch",
             template: _.template(ScheduleTemplate),
             regions:{
                 "group-pieces": ".col-right > .container > .group-pieces",
@@ -45,11 +46,52 @@ define([
             },
 
             events: {
-                "mousedown .sch": "mousedown",
-                "mouseup .sch": "mouseup",
-                "mouseleave .sch": "mouseleave",
+                "mousedown": "mousedown",
+                "mouseup": "mouseup",
+                "mouseleave": "mouseleave",
                 "keyup": "keyup",
                 "keydown": "keydown"
+            },
+
+            onShow: function(){
+                var parentHeight = App.Layout.$el.parent().height();
+                //calculate  and set container's height
+                App.Layout.$el.find(".container").css("height", parentHeight + "px");
+
+                //show "THE GRID!!!"
+                var gridChannel = App.Grid.Channel;
+                var gridView = gridChannel.request("get:root");
+                App.Layout.getRegion("container").show(gridView);
+
+                //get and update the grid's render parameters
+                var renderParams = gridChannel.request("get:grid:params");
+                renderParams["z"] = 3;
+
+                //start and show the PieceDrawer
+                App.PieceDrawer.start(renderParams);
+                var pieceChannel = App.PieceDrawer.Channel;
+                var pieceView = pieceChannel.request("get:root");
+                App.Layout.getRegion("group-pieces").show(pieceView);
+
+                //start and show the Legends
+                var defaultCells = gridChannel.request("get:column:first");
+                App.Legends.start({
+                    renderParams: renderParams,
+                    defaultCells: defaultCells
+                });
+                var legendsChannel = App.Legends.Channel;
+                var legendsView = legendsChannel.request("get:root");
+                App.Layout.getRegion("col-left").show(legendsView);
+
+                var headers = gridChannel.request("get:column:headers");
+                App.Headers.start({
+                    renderParams: renderParams,
+                    headers: headers
+                });
+
+                var headersChannel = App.Headers.Channel;
+                var headersView = headersChannel.request("get:root");
+                App.Layout.getRegion("col-right").show(headersView);
             },
 
             mousedown: function(){
@@ -110,43 +152,12 @@ define([
             App.Layout = new RootView();
             // App.Layout.render();
             App.Grid.start({
-                url: options.url,
-                height: 410
+                url: options.url
             });
-            
-            var gridChannel = App.Grid.Channel;
-            var gridView = gridChannel.request("get:root");
-
-            var renderParams = gridChannel.request("get:grid:params");
-
-            //the value of z is irrelevant for now...
-            renderParams["z"] = 3;
-
-            App.PieceDrawer.start(renderParams);
-            var pieceChannel = App.PieceDrawer.Channel;
-            var pieceView = pieceChannel.request("get:root");
-
-            var defaultCells = gridChannel.request("get:column:first");
-            App.Legends.start({
-                renderParams: renderParams,
-                defaultCells: defaultCells
-            });
-
-            var legendsChannel = App.Legends.Channel;
-            var legendsView = legendsChannel.request("get:root");
-
-            var headers = gridChannel.request("get:column:headers");
-            App.Headers.start({
-                renderParams: renderParams,
-                headers: headers
-            });
-
-            var headersChannel = App.Headers.Channel;
-            var headersView = headersChannel.request("get:root");
 
             App.setHandlers();
-
             App.Channel.trigger("schedule:ready");
+
         });
 
         App.setHandlers = function(){
@@ -161,36 +172,6 @@ define([
             var legendsView = legendsChannel.request("get:root");
 
             var renderParams = gridChannel.request("get:grid:params");
-
-            App.Layout.on("render", function(){
-                App.Layout.$el.find(".container").css("height", renderParams.height + "px");
-            });
-
-            App.Layout.on("show", function(args){
-
-                App.Layout.getRegion("col-left").show(legendsView);
-                
-                App.Layout.getRegion("col-right").show(headersView);
-
-                var containerRegion = App.Layout.getRegion("container");
-                containerRegion.show(gridView);
-
-                App.Layout.getRegion("group-pieces").show(pieceView);
-
-                //JUST FOR TESTING PURPOSES
-
-                $("#create").on("click", function(){
-                    App.Channel.trigger("change:mode", {mode: "create"});
-                });
-
-                $("#delete").on("click", function(){
-                    App.Channel.trigger("change:mode", {mode:"delete"});
-                });
-
-                $("#clean").on("click", function(){
-                    App.Channel.command("clean:pieces");
-                });
-            });
 
             App.Channel.listenTo(gridChannel, "cell:click", function(args){
                 App.ActiveMode.trigger("cell:click", args);
