@@ -122,7 +122,7 @@ define([
             return Headers.View.getOption("renderParams");
         });
 
-        Headers.Channel.reply("get:headers:root", function(){
+        Headers.Channel.reply("get:root", function(){
             return Headers.View;
         });
 

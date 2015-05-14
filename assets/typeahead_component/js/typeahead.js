@@ -201,7 +201,7 @@ define([
                 displayKeys: options.displayKeys
             });
 
-            TypeAhead.Channel.reply("get:typeahead:root", function(){
+            TypeAhead.Channel.reply("get:root", function(){
                 return TypeAhead.RootView;
             });
 

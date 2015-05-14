@@ -37,10 +37,9 @@ define([
 
         App.Store = new StoreClass(storeChannelName, storeConfigUrl);
 
-        var scheduleConfigUrl = "/clients/darwined/api_schedules";
         var scheduleChannelName = channelName + "_schedule";
 
-        App.Schedule = new ScheduleClass(scheduleChannelName, scheduleConfigUrl);
+        App.Schedule = new ScheduleClass(scheduleChannelName);
 
         App.TypeAhead = new TyConstructor(channelName + "_ty");
 
@@ -60,7 +59,7 @@ define([
 
             App.Channel.listenTo(scheduleChannel, "schedule:ready", function(){
                 console.log("Schedule Loaded");
-                var scheduleView = scheduleChannel.request("get:schedule:root");
+                var scheduleView = scheduleChannel.request("get:root");
                 someRegion.show(scheduleView);
             });
 
@@ -71,8 +70,10 @@ define([
 
             App.setHandlers();
             
-            App.Store.start({url:"/clients/darwined/"});
-            App.Schedule.start({height: 300});
+            App.Store.start({url:"/clients/testing/"});
+            App.Schedule.start({
+                url: "/clients/testing/api_schedules"
+            });
 
 
 
@@ -94,7 +95,7 @@ define([
                 });
 
                 var tyChannel = App.TypeAhead.Channel;
-                var tyView = tyChannel.request("get:typeahead:root");
+                var tyView = tyChannel.request("get:root");
 
                 someOtherRegion.show(tyView);
 

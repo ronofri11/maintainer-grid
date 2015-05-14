@@ -5,12 +5,11 @@ define([
     "../js/grid",
     "../js/piecedrawer",
     "../js/legends",
-    "../js/headers"
-  // "../assets/grid/js/views/gridview",
-  // "../assets/grid/js/blockparser"
-], function (Marionette, Radio, Shim, Grid, PieceDrawer, Legends, Headers) {
+    "../js/headers",
+    "text!assets/grid_component/templates/schedule.html"
+], function (Marionette, Radio, Shim, Grid, PieceDrawer, Legends, Headers, ScheduleTemplate) {
 
-    var AppConstructor = function(channelName, url){
+    var AppConstructor = function(channelName){
         //this App works as the full schedule component
         //including Grid, PieceDrawer, Headers and Legends.
         var App = new Marionette.Application();
@@ -28,7 +27,7 @@ define([
         });
 
         var RootView = Marionette.LayoutView.extend({
-            template: "#schedule-layout-template",
+            template: _.template(ScheduleTemplate),
             regions:{
                 "group-pieces": ".col-right > .container > .group-pieces",
                 "container": {
@@ -92,10 +91,7 @@ define([
         });
 
         App.on("before:start", function(options){
-            App.Grid = new Grid({
-                channelName: channelName + "_grid",
-                url: url
-            });
+            App.Grid = new Grid(channelName + "_grid");
             App.PieceDrawer = new PieceDrawer(channelName + "_piecedrawer");
             App.Legends = new Legends(channelName + "_legends");
             App.Headers = new Headers(channelName + "_headers");
@@ -114,19 +110,21 @@ define([
             App.Layout = new RootView();
             // App.Layout.render();
             App.Grid.start({
-                renderParams:{height: options.height}
+                url: options.url,
+                height: 410
             });
             
             var gridChannel = App.Grid.Channel;
-            var gridView = gridChannel.request("get:grid:root");
+            var gridView = gridChannel.request("get:root");
 
             var renderParams = gridChannel.request("get:grid:params");
 
+            //the value of z is irrelevant for now...
             renderParams["z"] = 3;
 
             App.PieceDrawer.start(renderParams);
             var pieceChannel = App.PieceDrawer.Channel;
-            var pieceView = pieceChannel.request("get:piecedrawer:root");
+            var pieceView = pieceChannel.request("get:root");
 
             var defaultCells = gridChannel.request("get:column:first");
             App.Legends.start({
@@ -135,7 +133,7 @@ define([
             });
 
             var legendsChannel = App.Legends.Channel;
-            var legendsView = legendsChannel.request("get:legends:root");
+            var legendsView = legendsChannel.request("get:root");
 
             var headers = gridChannel.request("get:column:headers");
             App.Headers.start({
@@ -144,7 +142,7 @@ define([
             });
 
             var headersChannel = App.Headers.Channel;
-            var headersView = headersChannel.request("get:headers:root");
+            var headersView = headersChannel.request("get:root");
 
             App.setHandlers();
 
@@ -157,10 +155,10 @@ define([
             var headersChannel = App.Headers.Channel;
             var legendsChannel = App.Legends.Channel;
 
-            var gridView = gridChannel.request("get:grid:root");
-            var pieceView = pieceChannel.request("get:piecedrawer:root");
-            var headersView = headersChannel.request("get:headers:root");
-            var legendsView = legendsChannel.request("get:legends:root");
+            var gridView = gridChannel.request("get:root");
+            var pieceView = pieceChannel.request("get:root");
+            var headersView = headersChannel.request("get:root");
+            var legendsView = legendsChannel.request("get:root");
 
             var renderParams = gridChannel.request("get:grid:params");
 
@@ -235,7 +233,7 @@ define([
 
             //Schedule API composed of replies, complies and on's
 
-            App.Channel.reply("get:schedule:root", function(){
+            App.Channel.reply("get:root", function(){
                 return App.Layout;
             });
 

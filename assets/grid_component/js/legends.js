@@ -127,7 +127,7 @@ define([
             return Legends.View.getOption("renderParams");
         });
 
-        Legends.Channel.reply("get:legends:root", function(){
+        Legends.Channel.reply("get:root", function(){
             return Legends.View;
         });
 

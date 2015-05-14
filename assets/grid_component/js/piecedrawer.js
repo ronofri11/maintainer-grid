@@ -133,7 +133,7 @@ define([
             // console.log("channel:", PieceDrawer.Channel.channelName, args.model.toJSON());
         });
 
-        PieceDrawer.Channel.reply("get:piecedrawer:root", function(){
+        PieceDrawer.Channel.reply("get:root", function(){
             // console.log(PieceDrawer.View);
             return PieceDrawer.View;
         });

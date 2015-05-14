@@ -6,15 +6,11 @@ define([
     // "text!../templates/grid.html"
 ], function(Marionette, Radio, Shim, GridParser){
 
-    var GridConstructor = function(options){
+    var GridConstructor = function(channelName){
 
         var Grid = new Marionette.Application();
 
-        Grid.Channel = Radio.channel(options.channelName);
-
-        var Parser = new GridParser();
-        var gridData = Parser.parse(options.url);
-        // var gridData = Parser.parse("/maintainer-grid/assets/grid_component/js/json/grid-itc.json");
+        Grid.Channel = Radio.channel(channelName);
 
         //set of models and collections needed
         var Cell = Backbone.Model.extend({});
@@ -127,8 +123,8 @@ define([
         });
 
         Grid.on("before:start", function(options){
-            //options.columns should contain an array of objects
-            //with a key named cells, and a 
+            var Parser = new GridParser();
+            var gridData = Parser.parse(options.url);
             Grid.Columns = new Columns(gridData.columns);
             Grid.Columns.each(function(col){
                 var cells = col.get("cells");
@@ -141,7 +137,7 @@ define([
             Grid.View = new GridView({
                 collection: Grid.Columns,
                 renderParams: {
-                    height: options.renderParams.height,
+                    height: options.height,
                     width: parseFloat(100.0/Grid.Columns.length)
                 }
             });
@@ -168,7 +164,7 @@ define([
             return Grid.View.getOption("renderParams");
         });
 
-        Grid.Channel.reply("get:grid:root", function(){
+        Grid.Channel.reply("get:root", function(){
             return Grid.View;
         });
 

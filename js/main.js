@@ -8,7 +8,8 @@ require.config({
         "backbone.marionette" : "../bower_components/backbone.marionette/lib/core/backbone.marionette",
         "backbone.radio" : "../bower_components/backbone.radio/build/backbone.radio",
         "backbone.babysitter" : "../bower_components/backbone.babysitter/lib/backbone.babysitter",
-        text: "../bower_components/requirejs-text/text"
+        text: "../bower_components/requirejs-text/text",
+        "assets": "../assets"
     },
     enforceDefine: true,
     map: {
