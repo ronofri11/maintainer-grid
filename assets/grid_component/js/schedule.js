@@ -152,7 +152,7 @@ define([
             App.Layout = new RootView();
             // App.Layout.render();
             App.Grid.start({
-                url: options.url
+                source: options.source
             });
 
             App.setHandlers();

@@ -66,38 +66,39 @@ define([
             App.Channel.listenTo(storeChannel, "end:configuration", function(){
                 console.log("Store ready for queries");
                 App.Channel.command("fetch:models", {modelName: args.modelName});
+                App.Channel.command("fetch:models", {modelName: args.scheduleModel});
             });
 
             App.setHandlers();
             
             App.Store.start({url:"/clients/darwined/"});
-            App.Schedule.start({
-                url: "/clients/darwined/api_schedules"
-            });
 
 
+            App.Channel.on("models:loaded", function(params){
+                if(params.modelName === "Profesor"){
+                    var DarwinCollection = storeChannel.request("get:collection:class", {modelName: args.modelName});
+                    
+                    App.Selection = new DarwinCollection();
 
-            App.Channel.on("models:loaded", function(){
-                var DarwinCollection = storeChannel.request("get:collection:class", {modelName: args.modelName});
-                
-                App.Selection = new DarwinCollection();
+                    App.Profesors = App.Channel.request("get:models", {modelName: args.modelName});
 
-                App.Models = App.Channel.request("get:models", {modelName: args.modelName});
-                // if(App.Models.length > 0){
-                //     App.Selection.add(App.Models.at(0));
-                // }
+                    App.TypeAhead.start({
+                        containerHeight: someOtherRegion.$el.outerHeight(),
+                        models: App.Profesors,
+                        displayKeys: ["nombre","codigo"]
+                    });
 
-                App.TypeAhead.start({
-                    containerHeight: someOtherRegion.$el.outerHeight(),
-                    models: App.Models,
-                    separator: "__",
-                    displayKeys: ["nombre","codigo"]
-                });
+                    var tyChannel = App.TypeAhead.Channel;
+                    var tyView = tyChannel.request("get:root");
 
-                var tyChannel = App.TypeAhead.Channel;
-                var tyView = tyChannel.request("get:root");
-
-                someOtherRegion.show(tyView);
+                    someOtherRegion.show(tyView);
+                }
+                else{
+                    App.ScheduleCollection = App.Channel.request("get:models", {modelName: args.scheduleModel});
+                    App.Schedule.start({
+                        source: App.ScheduleCollection.at(0)
+                    });
+                }
 
                 // App.Channel.command("change:selection");
             });
@@ -112,7 +113,8 @@ define([
                 storeChannel.command("fetch:chain:for", {modelName: args.modelName});
             });
             App.Channel.listenTo(storeChannel, "store:model:loaded", function(args){
-                App.Channel.trigger("models:loaded");
+                console.log(args)
+                App.Channel.trigger("models:loaded", args);
             });
             App.Channel.reply("get:models", function(args){
                 var models = storeChannel.request("get:models", {modelName: args.modelName});

@@ -12,6 +12,7 @@ define([
             async: false,
             success: function(result){
                 blocks = result[0];
+                console.log("back from ajax:", blocks);
                 // blocks = result;   
             }
         });
@@ -63,9 +64,17 @@ define([
         return this.absoluteTime(strTime2) - this.absoluteTime(strTime1);
     };
 
-    Parser.prototype.parse = function(url){
+    Parser.prototype.parse = function(datasource){
 
-        var blocks = this.getData(url);
+        var blocks;
+        switch(typeof datasource){
+            case "object"://if datasource is a Backbone Schedule Model
+                blocks = {grid: datasource.get("grid")};
+                break;
+            case "string"://if datasource is a url
+                blocks = this.getData(datasource);
+                break;
+        }
 
         var limits = this.getLimits(blocks);
 

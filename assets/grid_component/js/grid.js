@@ -126,7 +126,8 @@ define([
 
         Grid.on("before:start", function(options){
             var Parser = new GridParser();
-            var gridData = Parser.parse(options.url);
+            var gridData = Parser.parse(options.source);
+            console.log("gridData", gridData);
             Grid.Columns = new Columns(gridData.columns);
             Grid.Columns.each(function(col){
                 var cells = col.get("cells");
